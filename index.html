@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>四国旅行プラン</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+      background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: #006064;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .day-selector {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .day-btn {
+      background: rgba(255, 255, 255, 0.5);
+      border: 2px solid rgba(0, 96, 100, 0.3);
+      color: #006064;
+      padding: 12px 30px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .day-btn:hover {
+      background: rgba(255, 255, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .day-btn.active {
+      background: #00acc1;
+      color: white;
+      border-color: #00acc1;
+    }
+
+    .itinerary-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+
+    .itinerary-card.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .day-title {
+      font-size: 1.8rem;
+      color: #00838f;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #e0f7fa;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+      color: white;
+    }
+
+    th {
+      padding: 15px 12px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+    }
+
+    th:first-child {
+      border-radius: 10px 0 0 0;
+    }
+
+    th:last-child {
+      border-radius: 0 10px 0 0;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: #e0f7fa;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 18px 12px;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    td:first-child {
+      font-weight: 600;
+      color: #00838f;
+      font-size: 1rem;
+    }
+
+    td:nth-child(2) {
+      font-weight: 500;
+    }
+
+    .map-link {
+      display: inline-block;
+      margin-left: 8px;
+      color: #00acc1;
+      text-decoration: none;
+      font-size: 0.9em;
+      transition: color 0.2s ease;
+    }
+
+    .map-link:hover {
+      color: #006064;
+    }
+
+    .map-link::before {
+      content: "📍 ";
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+      }
+
+      .day-selector {
+        flex-direction: row;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .day-btn {
+        flex: 1;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+      }
+
+      .itinerary-card {
+        padding: 20px 15px;
+        border-radius: 15px;
+      }
+
+      .day-title {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        line-height: 1.4;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody, tr {
+        display: block;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid #e0f7fa;
+        border-radius: 10px;
+        padding: 12px;
+        background: #fafafa;
+      }
+
+      tr:hover {
+        background: #e0f7fa;
+      }
+
+      td {
+        display: block;
+        padding: 6px 0;
+        text-align: left;
+        border: none;
+      }
+
+      td:first-child {
+        font-size: 1.1rem;
+        color: #00acc1;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e0f7fa;
+      }
+
+      td:nth-child(2) {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      td:nth-child(3) {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 5px;
+      }
+
+      td:nth-child(4) {
+        font-size: 0.85rem;
+        color: #00838f;
+        font-weight: 500;
+      }
+
+      td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #00838f;
+        display: none;
+      }
+
+      .map-link {
+        font-size: 0.85em;
+        margin-left: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>四国旅行プラン</h1>
+      <p class="subtitle">2025年11月6日〜8日</p>
+    </header>
+
+    <div class="day-selector">
+      <button class="day-btn active" onclick="showDay(1)">Day 1</button>
+      <button class="day-btn" onclick="showDay(2)">Day 2</button>
+      <button class="day-btn" onclick="showDay(3)">Day 3</button>
+    </div>
+
+    <!-- Day 1 -->
+    <div class="itinerary-card active" id="day1">
+      <h2 class="day-title">Day 1：2025/11/06（木） 大阪 → 淡路島 → 香川 → 道後温泉</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>時間</th>
+            <th>内容</th>
+            <th>詳細</th>
+            <th>所要時間</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>09:00</td>
+            <td>出発（大阪市東成区）</td>
+            <td>阪神高速 → 神戸淡路鳴門自動車道 経由</td>
+            <td>約1時間40分（移動）</td>
+          </tr>
+          <tr>
+            <td>10:40</td>
+            <td>淡路島SA（休憩）<a href="https://www.google.com/maps/search/?api=1&query=淡路島サービスエリア" target="_blank" class="map-link">地図</a></td>
+            <td>明石海峡大橋の眺望・玉ねぎスープ・展望台</td>
+            <td>20分（滞在）</td>
+          </tr>
+          <tr>
+            <td>11:00</td>
+            <td>淡路島SA 出発</td>
+            <td>鳴門大橋 → 高松自動車道へ</td>
+            <td>約1時間30分（移動）</td>
+          </tr>
+          <tr>
+            <td>12:30</td>
+            <td>昼食（香川・高松）<a href="https://www.google.com/maps/search/?api=1&query=高松市+讃岐うどん" target="_blank" class="map-link">地図</a></td>
+            <td>讃岐うどん：山越 / がもう / うどんバカ一代 など</td>
+            <td>約1時間（食事）</td>
+          </tr>
+          <tr>
+            <td>13:30</td>
+            <td>高松 → 道後温泉 へ出発</td>
+            <td>高松道〜松山道（しおんさん指定：2時間計算）</td>
+            <td>約2時間（移動）</td>
+          </tr>
+          <tr>
+            <td>15:30</td>
+            <td>途中休憩<a href="https://www.google.com/maps/search/?api=1&query=伊予灘サービスエリア" target="_blank" class="map-link">地図</a></td>
+            <td>伊予灘SAなど（瀬戸内海ビュー）</td>
+            <td>15分（休憩）</td>
+          </tr>
+          <tr>
+            <td>17:00</td>
+            <td>道後温泉 到着・チェックイン<a href="https://www.google.com/maps/search/?api=1&query=ホテルパティオ・ドウゴ" target="_blank" class="map-link">地図</a></td>
+            <td>道後温泉本館・商店街は徒歩圏</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>18:00</td>
+            <td>入浴<a href="https://www.google.com/maps/search/?api=1&query=道後温泉本館" target="_blank" class="map-link">地図</a></td>
+            <td>道後温泉本館 / 椿の湯 / 飛鳥乃湯泉 など</td>
+            <td>約1時間30分（入浴）</td>
+          </tr>
+          <tr>
+            <td>19:30</td>
+            <td>夕食</td>
+            <td>鯛めし・じゃこ天・愛媛地酒</td>
+            <td>約1時間30分（食事）</td>
+          </tr>
+          <tr>
+            <td>21:00</td>
+            <td>宿泊</td>
+            <td>ホテル パティオ・ドウゴ</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Day 2 -->
+    <div class="itinerary-card" id="day2">
+      <h2 class="day-title">Day 2：2025/11/07（金） 道後温泉 → 四国カルスト → 高知 → 徳島（ホテル）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>時間</th>
+            <th>内容</th>
+            <th>詳細</th>
+            <th>所要時間</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>08:15</td>
+            <td>出発（松山 → 四国カルスト）</td>
+            <td>国道33号線 経由</td>
+            <td>約2時間30分（移動）</td>
+          </tr>
+          <tr>
+            <td>10:45</td>
+            <td>四国カルスト 到着<a href="https://www.google.com/maps/search/?api=1&query=四国カルスト+姫鶴平" target="_blank" class="map-link">地図</a></td>
+            <td>姫鶴平・天狗高原 散策／展望／牧場</td>
+            <td>約1時間（滞在）</td>
+          </tr>
+          <tr>
+            <td>11:45</td>
+            <td>出発（カルスト → 高知）</td>
+            <td>仁淀川沿いの快走ルート（しおんさん指定：2時間計算）</td>
+            <td>約2時間（移動）</td>
+          </tr>
+          <tr>
+            <td>13:45</td>
+            <td>高知市内 昼食<a href="https://www.google.com/maps/search/?api=1&query=ひろめ市場" target="_blank" class="map-link">地図</a></td>
+            <td>ひろめ市場で藁焼きカツオのたたき</td>
+            <td>約1時間（食事）</td>
+          </tr>
+          <tr>
+            <td>14:45</td>
+            <td>高知市内 観光<a href="https://www.google.com/maps/search/?api=1&query=高知城" target="_blank" class="map-link">地図</a></td>
+            <td>高知城・はりまや橋など軽く散策</td>
+            <td>約1時間（観光）</td>
+          </tr>
+          <tr>
+            <td>15:45</td>
+            <td>出発（高知 → 徳島・鳴門）</td>
+            <td>高知自動車道 → 徳島自動車道</td>
+            <td>約2時間30分（移動）</td>
+          </tr>
+          <tr>
+            <td>18:15</td>
+            <td>ホテル 到着</td>
+            <td>チェックイン・夕景</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>19:30</td>
+            <td>夕食</td>
+            <td>ホテル内レストラン</td>
+            <td>約1時間00分（食事）</td>
+          </tr>
+          <tr>
+            <td>20:30</td>
+            <td>自由時間</td>
+            <td>ホテルでのんびり</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Day 3 -->
+    <div class="itinerary-card" id="day3">
+      <h2 class="day-title">Day 3：2025/11/08（土） 徳島 → 鳴門・淡路島 観光 → 大阪（20時頃帰宅）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>時間</th>
+            <th>内容</th>
+            <th>詳細</th>
+            <th>所要時間</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>08:30</td>
+            <td>朝食（ホテル）</td>
+            <td>のんびり</td>
+            <td>約1時間30分（食事）</td>
+          </tr>
+          <tr>
+            <td>11:00</td>
+            <td>チェックアウト</td>
+            <td>鳴門観光へ</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>11:15</td>
+            <td>大塚国際美術館<a href="https://www.google.com/maps/search/?api=1&query=大塚国際美術館" target="_blank" class="map-link">地図</a></td>
+            <td>世界の名画を陶板で鑑賞（雨天OK）</td>
+            <td>約1時間15分（鑑賞）</td>
+          </tr>
+          <tr>
+            <td>12:30</td>
+            <td>昼食（鳴門）<a href="https://www.google.com/maps/search/?api=1&query=鳴門市+鳴門鯛" target="_blank" class="map-link">地図</a></td>
+            <td>鳴門鯛御膳・鳴門金時スイーツ</td>
+            <td>約1時間（食事）</td>
+          </tr>
+          <tr>
+            <td>13:30</td>
+            <td>出発（鳴門 → 淡路島 夢舞台）</td>
+            <td>神戸淡路鳴門道 経由</td>
+            <td>約1時間（移動）</td>
+          </tr>
+          <tr>
+            <td>14:30</td>
+            <td>淡路島散策(詳細未定)<a href="https://www.google.com/maps/search/?api=1&query=淡路島+観光" target="_blank" class="map-link">地図</a></td>
+            <td>- </td>
+            <td>約2時間30分</td>
+          </tr>
+          <tr>
+            <td>17:00</td>
+            <td>出発（淡路島 → 大阪市東成区）</td>
+            <td>阪神高速 経由</td>
+            <td>約2時間（移動）</td>
+          </tr>
+          <tr>
+            <td>19:00〜20:00</td>
+            <td>到着（帰宅）</td>
+            <td>道路状況により変動</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function showDay(day) {
+      // すべてのカードとボタンから active クラスを削除
+      document.querySelectorAll('.itinerary-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // 選択された日のカードとボタンに active クラスを追加
+      document.getElementById('day' + day).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
